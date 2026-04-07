@@ -48,11 +48,11 @@ To build lambda binaries locally (optional — CDK bundles automatically):
 make build
 ```
 
-### 3. Infrastructure (CDK)
+### 3. Infrastructure (CDK — Go)
 
 ```bash
 cd infrastructure
-npm install
+go mod tidy
 cdk bootstrap aws://ACCOUNT_ID/eu-west-2   # first time only
 cdk deploy
 ```

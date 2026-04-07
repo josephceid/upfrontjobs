@@ -13,15 +13,12 @@ backend/dist/
 backend/bin/
 *.exe
 
-# Node / CDK
-node_modules/
+# Node (frontend only)
+frontend/node_modules/
+
+# CDK
 infrastructure/cdk.out/
-infrastructure/*.js
-infrastructure/*.d.ts
-infrastructure/bin/*.js
-infrastructure/bin/*.d.ts
-infrastructure/lib/*.js
-infrastructure/lib/*.d.ts
+cdk.context.json
 
 # Next.js
 frontend/.next/
@@ -32,6 +29,3 @@ frontend/.env.local
 .env
 .env.*
 !.env.example
-
-# AWS CDK
-cdk.context.json
