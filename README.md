@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# upfrontjobs.co.uk
 
-## Getting Started
+A job board that only shows listings with declared salary ranges.
 
-First, run the development server:
+## Project Structure
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+/
+├── frontend/          # Next.js 15 app (App Router, TypeScript, Tailwind)
+├── backend/           # Go Lambda functions
+│   ├── cmd/sync/      # Reed API sync (runs every 6 hours via EventBridge)
+│   └── cmd/api/       # API Gateway Lambda (GET /jobs, GET /jobs/{jobId})
+├── infrastructure/    # AWS CDK (TypeScript)
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Prerequisites
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Go 1.23+
+- Node.js 20+
+- AWS CLI configured for `eu-west-2`
+- Docker (for CDK bundling of Go lambdas)
+- AWS CDK CLI: `npm install -g aws-cdk`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup
 
-## Learn More
+### 1. AWS Secrets Manager
 
-To learn more about Next.js, take a look at the following resources:
+Store your Reed API key before deploying:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+aws secretsmanager create-secret \
+  --name reed-api-key \
+  --secret-string "YOUR_REED_API_KEY" \
+  --region eu-west-2
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. Backend (Go)
 
-## Deploy on Vercel
+```bash
+cd backend
+go mod tidy
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To build lambda binaries locally (optional — CDK bundles automatically):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+make build
+```
+
+### 3. Infrastructure (CDK)
+
+```bash
+cd infrastructure
+npm install
+cdk bootstrap aws://ACCOUNT_ID/eu-west-2   # first time only
+cdk deploy
+```
+
+The CDK stack outputs the API Gateway URL. Set it as `NEXT_PUBLIC_API_URL` in your frontend.
+
+### 4. Frontend (Next.js)
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+# Set NEXT_PUBLIC_API_URL to your API Gateway URL
+npm run dev
+```
+
+## Environment Variables
+
+| Variable | Location | Description |
+|---|---|---|
+| `REED_API_KEY` | AWS Secrets Manager (`reed-api-key`) | Reed API key |
+| `DYNAMODB_TABLE_NAME` | Lambda env var (set by CDK) | DynamoDB table name |
+| `NEXT_PUBLIC_API_URL` | `frontend/.env.local` | API Gateway base URL |
+
+## Architecture
+
+- **Sync Lambda**: Runs every 6 hours via EventBridge. Fetches jobs from Reed API, filters to salary-declared listings only, stores in DynamoDB with a 90-day TTL.
+- **API Lambda**: HTTP API Gateway proxy. Supports paginated job search with keyword/location/salary filters.
+- **Frontend**: Next.js 15 with ISR (6-hour revalidation). Job detail pages are statically generated with JSON-LD structured data for SEO.
+
+## Deployment
+
+```bash
+cd infrastructure && cdk deploy
+cd frontend && npm run build
+```
+
+## Attribution
+
+Job listings powered by [Reed](https://www.reed.co.uk).
