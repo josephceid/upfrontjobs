@@ -9,8 +9,8 @@ export function Header() {
           <Image
             src="/images/upfront-logo-light.svg"
             alt="Upfront Jobs"
-            width={160}
-            height={40}
+            width={228}
+            height={48}
             priority
           />
         </Link>
