@@ -1,0 +1,7 @@
+<svg width="64" height="64" viewBox="0 0 64 64" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>upfront icon – dark</title>
+<desc>upfront price tag icon mark on dark background</desc>
+<rect width="64" height="64" rx="14" fill="#18181b"/>
+<circle cx="16" cy="16" r="7" fill="#ffffff" opacity="0.25"/>
+<text x="36" y="46" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="700" fill="#ffffff" text-anchor="middle">£</text>
+</svg>

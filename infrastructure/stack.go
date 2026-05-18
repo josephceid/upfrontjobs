@@ -8,10 +8,7 @@ import (
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2integrations"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsevents"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awseventstargets"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awssecretsmanager"
 	"github.com/aws/aws-cdk-go/awscdklambdagoalpha/v2"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
@@ -37,36 +34,6 @@ func NewUpfrontJobsStack(scope constructs.Construct, id string, props *awscdk.St
 		RemovalPolicy:       awscdk.RemovalPolicy_RETAIN,
 		PointInTimeRecovery: jsii.Bool(true),
 	})
-
-	// ── Secrets Manager reference ────────────────────────────────────────────
-	reedSecret := awssecretsmanager.Secret_FromSecretNameV2(
-		stack, jsii.String("ReedApiKey"), jsii.String("reed-api-key"),
-	)
-
-	// ── Sync Lambda (GoFunction handles cross-compilation automatically) ─────
-	syncFn := awscdklambdagoalpha.NewGoFunction(stack, jsii.String("SyncFunction"), &awscdklambdagoalpha.GoFunctionProps{
-		Entry:        backendPath("cmd/sync"),
-		Architecture: awslambda.Architecture_ARM_64(),
-		Timeout:      awscdk.Duration_Minutes(jsii.Number(10)),
-		MemorySize:   jsii.Number(256),
-		Environment: &map[string]*string{
-			"DYNAMODB_TABLE_NAME": jobsTable.TableName(),
-			"REED_SECRET_NAME":    jsii.String("reed-api-key"),
-		},
-		FunctionName: jsii.String("upfrontjobs-sync"),
-		Description:  jsii.String("Fetches salary-declared jobs from Reed API and stores them in DynamoDB"),
-	})
-
-	jobsTable.GrantReadWriteData(syncFn)
-	reedSecret.GrantRead(syncFn, nil)
-
-	// EventBridge rule — every 6 hours.
-	syncRule := awsevents.NewRule(stack, jsii.String("SyncSchedule"), &awsevents.RuleProps{
-		RuleName:    jsii.String("upfrontjobs-sync-schedule"),
-		Description: jsii.String("Triggers Reed sync Lambda every 6 hours"),
-		Schedule:    awsevents.Schedule_Rate(awscdk.Duration_Hours(jsii.Number(6))),
-	})
-	syncRule.AddTarget(awseventstargets.NewLambdaFunction(syncFn, nil))
 
 	// ── API Lambda ───────────────────────────────────────────────────────────
 	apiFn := awscdklambdagoalpha.NewGoFunction(stack, jsii.String("ApiFunction"), &awscdklambdagoalpha.GoFunctionProps{

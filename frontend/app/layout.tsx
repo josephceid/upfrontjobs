@@ -5,6 +5,9 @@ import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://upfrontjobs.co.uk'),
+  icons: {
+    icon: '/images/upfront-icon-green.svg',
+  },
   title: {
     default: 'Upfront Jobs — Find jobs that show you the salary',
     template: '%s | Upfront Jobs',

@@ -1,0 +1,10 @@
+<svg width="380" height="100" viewBox="0 0 380 100" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>upfront logo – mono light</title>
+<desc>upfront wordmark single colour on white background</desc>
+<rect width="380" height="100" fill="#ffffff"/>
+<rect x="20" y="22" width="44" height="44" rx="8" fill="#18181b"/>
+<circle cx="31" cy="33" r="4" fill="#ffffff" opacity="0.3"/>
+<text x="42" y="53" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle">£</text>
+<text x="76" y="62" font-family="system-ui, -apple-system, sans-serif" font-size="46" font-weight="800" letter-spacing="-2" fill="#18181b">upfront</text>
+<text x="76" y="82" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#71717a" letter-spacing="0.3">real salaries. always.</text>
+</svg>

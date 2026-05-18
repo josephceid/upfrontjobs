@@ -23,10 +23,9 @@ export function formatSalaryRange(min: number, max: number, compact = false): st
   return `${formatSalary(min, compact)} – ${formatSalary(max, compact)}`;
 }
 
-/** Format a date string (DD/MM/YYYY from Reed) to a readable format. */
+/** Format a date string (DD/MM/YYYY) to a readable format. */
 export function formatDate(dateStr: string): string {
   if (!dateStr) return '';
-  // Reed returns dates as "01/01/2024"
   const parts = dateStr.split('/');
   if (parts.length === 3) {
     const [day, month, year] = parts;
